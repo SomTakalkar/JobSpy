@@ -4,11 +4,11 @@ import argparse
 from jobspy import scrape_jobs
 import pandas as pd
 
-def perform_scrape(results_wanted: int, location: str, is_remote: bool = False):
-    print(f"Scraping top {results_wanted} jobs for Network/SDWAN in {location} (Remote: {is_remote})...")
+def perform_scrape(results_wanted: int, search_term: str = "", location: str = "", is_remote: bool = False):
+    print(f"Scraping top {results_wanted} jobs for '{search_term}' in '{location}' (Remote: {is_remote})...")
     jobs = scrape_jobs(
         site_name=["indeed", "linkedin", "glassdoor"],
-        search_term="network OR sdwan OR \"sd-wan\"",
+        search_term=search_term,
         location=location,
         results_wanted=results_wanted,
         hours_old=24,
@@ -20,8 +20,9 @@ def perform_scrape(results_wanted: int, location: str, is_remote: bool = False):
 def maiden_voyage():
     print("Initiating Maiden Voyage (Test Run)...")
     
-    # We will test one specific location for the maiden voyage to get a quick sample
-    jobs = perform_scrape(results_wanted=5, location="Pune")
+    # We will test an empty default for the maiden voyage. 
+    # NOTE: You will likely need to provide parameters here to get meaningful results.
+    jobs = perform_scrape(results_wanted=5, search_term="", location="")
     
     if jobs.empty:
         print("No jobs found in the test run.")
@@ -45,24 +46,28 @@ def maiden_voyage():
     print("Please review this file to ensure the data structure meets your needs.")
 
 def full_scrape():
-    print("Initiating Full Scrape for Network/SDWAN...")
+    print("Initiating Full Scrape...")
     
-    locations = ["Pune", "Hyderabad"]
+    # Define your locations here
+    locations = [""]
+    search_term = ""
     all_jobs_dfs = []
     
     # Scrape specific locations
     for loc in locations:
-        jobs = perform_scrape(results_wanted=50, location=loc)
-        if not jobs.empty:
-            all_jobs_dfs.append(jobs)
+        if loc or search_term: # Only perform scrape if we have something to search
+            jobs = perform_scrape(results_wanted=50, search_term=search_term, location=loc)
+            if not jobs.empty:
+                all_jobs_dfs.append(jobs)
             
-    # Scrape remote jobs (location parameter usually needs a country/region when remote=True, we'll use "India")
-    remote_jobs = perform_scrape(results_wanted=50, location="India", is_remote=True)
-    if not remote_jobs.empty:
-        all_jobs_dfs.append(remote_jobs)
+    # Scrape remote jobs (location parameter usually needs a country/region when remote=True, we'll use empty or "India")
+    if search_term:
+        remote_jobs = perform_scrape(results_wanted=50, search_term=search_term, location="", is_remote=True)
+        if not remote_jobs.empty:
+            all_jobs_dfs.append(remote_jobs)
     
     if not all_jobs_dfs:
-        print("No jobs found in the full scrape across all parameters.")
+        print("No jobs found in the full scrape across all parameters (Ensure search_term and locations are defined in the script).")
         return
         
     # Combine all results
