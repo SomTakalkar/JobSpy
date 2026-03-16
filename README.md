@@ -72,5 +72,4 @@ python job_hunter.py --full
 ```
 *Review the output in `jobs.csv` and check the terminal for the top 5 paying roles.*
 
-## Automation (Antigravity Agent)
-This repository includes a `.agents/workflows/job_hunter_agent.md` file designed to be executed autonomously by an Antigravity AI agent. The agent can take care of running the script, managing dependencies, and bypassing CAPTCHAs visually.
+
